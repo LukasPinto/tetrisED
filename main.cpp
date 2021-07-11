@@ -242,6 +242,7 @@ int main() {
    	t=tecla();
    }
 
+
    while (t != ESCAPE) {
       // 0. Copiar la pieza actual
       Pieza copia = c;
