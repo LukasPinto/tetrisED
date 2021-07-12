@@ -9,7 +9,7 @@
 using namespace std;
 using namespace miniwin;
 
-const int TAM = 25; // constante
+const int TAMANHO = 25; // constante
 const int FILAS = 20;
 const int COLUMNAS = 10;
 
@@ -26,7 +26,7 @@ struct Pieza {
 };
 
 Coord posicion(int n, const Pieza& P)  {
-	
+   
    Coord ret = { P.orig.x, P.orig.y };
    if (n != 0) {
       ret.x += P.perif[n-1].x;
@@ -36,13 +36,13 @@ Coord posicion(int n, const Pieza& P)  {
 }
 
 void cuadrado(int x, int y) {
-   rectangulo_lleno(20 + 1 + x * TAM,
-                    20 + 1 + y * TAM,
-                    20 + x * TAM + TAM,
-                    20 + y * TAM + TAM);
+   rectangulo_lleno(20 + 1 + x * TAMANHO,
+                    20 + 1 + y * TAMANHO,
+                    20 + x * TAMANHO + TAMANHO,
+                    20 + y * TAMANHO + TAMANHO);
 }
 
-void pinta_pieza(const Pieza& P) {
+void Pintar_Pieza(const Pieza& P) {
    color(P.color);
    for (int i = 0; i < 4; i++) {
       Coord c = posicion(i,P);
@@ -50,18 +50,18 @@ void pinta_pieza(const Pieza& P) {
    }
 }
 
-Coord rota_derecha(const Coord& c) {
+Coord RotarA_Derecha(const Coord& c) {
    Coord ret = { -c.y, c.x };
    return ret;
 }
 
-void rota_derecha(Pieza& P) {
+void RotarA_Derecha(Pieza& P) {
    for (int i = 0; i < 3; i++) {
-      P.perif[i] = rota_derecha(P.perif[i]);
+      P.perif[i] = RotarA_Derecha(P.perif[i]);
    }
 }
 
-void tablero_vacia(Tablero& T) {
+void Vacia_tablero(Tablero& T) {
    for (int i = 0; i < COLUMNAS; i++) {
       for (int j = 0; j < FILAS; j++) {
          T[i][j] = NEGRO; // Esto significa casilla vacía
@@ -69,7 +69,7 @@ void tablero_vacia(Tablero& T) {
    }
 }
 
-void tablero_pinta(const Tablero& T) {
+void Pintar_Tablero(const Tablero& T) {
    for (int i = 0; i < COLUMNAS; i++) {
       for (int j = 0; j < FILAS; j++) {
          color(T[i][j]);
@@ -78,14 +78,14 @@ void tablero_pinta(const Tablero& T) {
    }
 }
 
-void tablero_incrusta_pieza(Tablero& T, const Pieza& P) {
+void Tablero_Agrega_Pieza(Tablero& T, const Pieza& P) {
    for (int i = 0; i < 4; i++) {
       Coord c = posicion(i,P);
       T[c.x][c.y] = P.color;
    }
 }
 
-bool tablero_colision(const Tablero& T, const Pieza& P) {
+bool tablero_colicion(const Tablero& T, const Pieza& P) {
    for (int i = 0; i < 4; i++) {
       Coord c = posicion(i,P);
       // Comprobar límites
@@ -113,7 +113,7 @@ const Coord perifs[7][3] = {
    { { 0,1 }, { 0,-1}, { 0,2 } }, // Palo
 };
 
-void pieza_nueva(Pieza& P) {
+void Nueva_Pieza(Pieza& P) {
   P.orig.x = 12;
   P.orig.y = 2;
   P.color = 1 + rand() % 6;
@@ -124,14 +124,14 @@ void pieza_nueva(Pieza& P) {
   }
 }
 
-bool tablero_fila_llena(const Tablero& T, int fila) {
+bool Fila_llena_Tablero(const Tablero& T, int fila) {
    for (int i = 0; i < COLUMNAS; i++) {
       if (T[i][fila] == NEGRO) return false;
    }
    return true;
 }
 
-void tablero_colapsa(Tablero& T, int fila) {
+void tetris(Tablero& T, int fila) {
    // Copiar de abajo a arriba
    for (int j = fila; j > 0; j--) {
       for (int i = 0; i < COLUMNAS; i++) {
@@ -144,11 +144,11 @@ void tablero_colapsa(Tablero& T, int fila) {
    }
 }
 
-int tablero_cuenta_lineas(Tablero& T) {
+int Cuenta_Lineas_Tablero(Tablero& T) {
    int fila = FILAS - 1, cont = 0;
    while (fila >= 0) {
-      if (tablero_fila_llena(T, fila)) {
-         tablero_colapsa(T, fila);
+      if (Fila_llena_Tablero(T, fila)) {
+         tetris(T, fila);
          cont++;
       } else {
          fila--;
@@ -163,13 +163,13 @@ string a_string(int puntos) {
    return sout.str();
 }
 
-void repinta(const Tablero& T, const Pieza& p, const Pieza& sig,
+void Re_Pintar(const Tablero& T, const Pieza& p, const Pieza& sig,
              int puntos, int nivel)
 {
-   const int ancho = TAM * COLUMNAS;
-   const int alto  = TAM * FILAS;
+   const int ancho = TAMANHO * COLUMNAS;
+   const int alto  = TAMANHO * FILAS;
    borra();
-   tablero_pinta(T);
+   Pintar_Tablero(T);
    color_rgb(128, 128, 128);
    linea(20, 20, 20, 20 + alto);
    linea(20, 20 + alto,20 + ancho, 20 + alto);
@@ -183,22 +183,22 @@ void repinta(const Tablero& T, const Pieza& p, const Pieza& sig,
    linea(20+ancho+40,550,20+ancho+40,620);
    linea(20+ancho+40,620,20+ancho+160,620);
    
-   texto(20 , 550, " arriba: 	      rotar pieza");
+   texto(20 , 550, " arriba:        rotar pieza");
    texto(20 , 565, " izquierda: mover a la izquierda");
-   texto(20 , 580, " derecha: 	  mover a la derecha");
-   texto(20 , 595, " abajo:		       bajar más rapido");
+   texto(20 , 580, " derecha:      mover a la derecha");
+   texto(20 , 595, " abajo:             bajar más rapido");
   texto(ancho+65, 200, "Siguiente Pieza: ");
    color(BLANCO);
    char puntos_aux[5];
    char niveles[5];
-  	itoa(nivel+1,niveles,10);
-   	itoa(puntos,puntos_aux,10);
-   	 texto(20+ancho+45, 555, "Nivel:");
+   itoa(nivel+1,niveles,10);
+      itoa(puntos,puntos_aux,10);
+       texto(20+ancho+45, 555, "Nivel:");
    texto(20+ancho+45, 590, "Puntos");
    texto(20+ancho+100, 555, niveles);
    texto(20+ancho+100, 590, puntos_aux);
-   pinta_pieza(p);
-   pinta_pieza(sig);
+   Pintar_Pieza(p);
+   Pintar_Pieza(sig);
    refresca();
 }
 
@@ -220,26 +220,26 @@ void game_over() {
 
 
 int main() {
-   vredimensiona(TAM * COLUMNAS + 250, TAM * FILAS + 250);
+   vredimensiona(TAMANHO * COLUMNAS + 250, TAMANHO * FILAS + 250);
    srand(time(0)); // Inicializar los números al azar (poner la semilla)
 
    int tic = 0, puntos = 0, nivel = 0;
 
    Tablero T;
-   tablero_vacia(T);
+   Vacia_tablero(T);
    Pieza c, sig;
-   pieza_nueva(c);
-   pieza_nueva(sig);
+   Nueva_Pieza(c);
+   Nueva_Pieza(sig);
    c.orig.x = 5;
    sig.orig.x=13;
    sig.orig.y=10;
 
-   repinta(T, c, sig, puntos, nivel);
+   Re_Pintar(T, c, sig, puntos, nivel);
 
    int t = tecla();
    while(t==NINGUNA){
-   	texto(65, 240, "presione cualquier tecla ");
-   	t=tecla();
+      texto(65, 240, "presione cualquier tecla ");
+      t=tecla();
    }
 
 
@@ -261,39 +261,39 @@ int main() {
       if (t == ABAJO) {
          c.orig.y++;
       } else if (t == ARRIBA) {
-         rota_derecha(c);
+         RotarA_Derecha(c);
       } else if (t == DERECHA) {
          c.orig.x++;
       } else if (t == IZQUIERDA) {
          c.orig.x--;
       }
       // 2. Mirar si hay colisión
-      if (tablero_colision(T, c)) {
+      if (tablero_colicion(T, c)) {
          c = copia;
          if (t == ABAJO) {
-            tablero_incrusta_pieza(T, c);
-            int cont = tablero_cuenta_lineas(T);
+            Tablero_Agrega_Pieza(T, c);
+            int cont = Cuenta_Lineas_Tablero(T);
             puntos += cont * cont;
             if (puntos > puntos_limite[nivel]) {
                nivel++;
             }
             c = sig;
-            pieza_nueva(sig);
+            Nueva_Pieza(sig);
             c.orig.x = 5;
             
-            if (tablero_colision(T, c)) {
+            if (tablero_colicion(T, c)) {
                game_over();
             }
          }
       }
 
-      // Repintar
+      // Re_Pintarr
       if (t != NINGUNA) {
-      		sig.orig.x=13;
-   		sig.orig.y=10;
-         repinta(T, c, sig, puntos, nivel);
+            sig.orig.x=13;
+         sig.orig.y=10;
+         Re_Pintar(T, c, sig, puntos, nivel);
          sig.orig.x=0;
-   		sig.orig.y=1;
+         sig.orig.y=1;
       }
 
       espera(30);
