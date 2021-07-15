@@ -12,11 +12,11 @@ using namespace miniwin;
 const int TAMANHO = 25; // constante
 const int FILAS = 20;
 const int COLUMNAS = 10;
-
+//ED tablero
 typedef int Tablero[COLUMNAS][FILAS];
 
 struct Coord { int x, y; };
-
+//ED Pieza
 struct Pieza {
    Coord orig;     // bloque central (posición absoluta)
    Coord perif[3]; // bloques periféricos (posición relativa)
@@ -25,7 +25,7 @@ struct Pieza {
     // n entre 0 y 3 (0 = central, 1-3 = perif.)
 };
 
-Coord posicion(int n, const Pieza& P)  {
+Coord posicion(int n, const Pieza& P)  {//retorna las coordenadas de cada cuadrado de una pieza
    
    Coord ret = { P.orig.x, P.orig.y };
    if (n != 0) {
@@ -41,51 +41,55 @@ void cuadrado(int x, int y) {
                     20 + x * TAMANHO + TAMANHO,
                     20 + y * TAMANHO + TAMANHO);
 }
-
+//interfaz 
 void Pintar_Pieza(const Pieza& P) {
-   color(P.color);
-   for (int i = 0; i < 4; i++) {
+   color(P.color);//color para de la pieza
+   for (int i = 0; i < 4; i++) {//pinta la pieza en la interfaz grafica
       Coord c = posicion(i,P);
-      cuadrado(c.x, c.y);
+      cuadrado(c.x, c.y);//funcion que pinta la pieza en dicha coordenada
    }
 }
-
-Coord RotarA_Derecha(const Coord& c) {
+//pieza
+Coord RotarA_Derecha(const Coord& c) {// multiplica por -1 la coordenada y,lo que significa que lo rota a la derecha
    Coord ret = { -c.y, c.x };
    return ret;
 }
-
-void RotarA_Derecha(Pieza& P) {
+//pieza
+void RotarA_Derecha(Pieza& P) {//funcion que aplica la rotacion a la pieza, pasando por cada cuadradito
    for (int i = 0; i < 3; i++) {
       P.perif[i] = RotarA_Derecha(P.perif[i]);
    }
 }
-
-void Vacia_tablero(Tablero& T) {
+//tablero
+void Vacia_tablero(Tablero& T) {//op del tablero, que se encarga de vacior el tablero.
    for (int i = 0; i < COLUMNAS; i++) {
       for (int j = 0; j < FILAS; j++) {
-         T[i][j] = NEGRO; // Esto significa casilla vacía
+         T[i][j] = NEGRO; // Esto significa casilla vacía NEGRO = 0
       }
    }
 }
-
+//interfaz
 void Pintar_Tablero(const Tablero& T) {
    for (int i = 0; i < COLUMNAS; i++) {
       for (int j = 0; j < FILAS; j++) {
-         color(T[i][j]);
+         color(T[i][j]);//funcion que recorre cada casilla del tablero y se encarga de pintar el tablero
          cuadrado(i, j);
       }
    }
 }
-
+//tablero
+//se agrega la pieza al tablero
 void Tablero_Agrega_Pieza(Tablero& T, const Pieza& P) {
    for (int i = 0; i < 4; i++) {
-      Coord c = posicion(i,P);
-      T[c.x][c.y] = P.color;
+      Coord c = posicion(i,P);//se coloca la pieza en sus respectivas coordenadas
+      T[c.x][c.y] = P.color;//en la matriz del tablero se colocan los numero del color de la pieza
    }
 }
-
-bool tablero_colicion(const Tablero& T, const Pieza& P) {
+//tablero
+bool tablero_colicion(const Tablero& T, const Pieza& P) {/*para comprobar que la pieza se encuentra dentro de la matriz, 
+primero se reemplaza la pieza y si su coordenada x o y es mayor a las filas o columnas, significa que esta fuera*/
+/*al mismo tiempo esta funcion tambien se encarga de verificar las colisiones con otras piezas*/
+/*retorna true si colisiona o si se sale de el trablero, y false si no lo hace*/
    for (int i = 0; i < 4; i++) {
       Coord c = posicion(i,P);
       // Comprobar límites
@@ -95,42 +99,43 @@ bool tablero_colicion(const Tablero& T, const Pieza& P) {
       if (c.y < 0 || c.y >= FILAS) {
          return true;
       }
-      // Mirar "basurilla"
+      // verificacion de coliscion con otra pieza
       if (T[c.x][c.y] != NEGRO) {
          return true;
       }
    }
    return false;
 }
-
+//piezas
 const Coord perifs[7][3] = {
+/*coordenadas de los cuadrados perifericos de todas las piezas*/
    { { 1,0 }, { 0,1 }, { 1,1 } }, // cuadrado
    { { 1,0 }, {-1,1 }, { 0,1 } }, // S
-   { { 0,1 }, { 1,1 }, {-1,0 } }, // 2
+   { { 0,1 }, { 1,1 }, {-1,0 } }, // Z
    { { 0,1 }, { 0,-1}, { 1,1 } }, // L
    { { 0,1 }, { 0,-1}, {-1,1 } }, // Lr
    { {-1,0 }, { 1,0 }, { 0,1 } }, // T
-   { { 0,1 }, { 0,-1}, { 0,2 } }, // Palo
+   { { 0,1 }, { 0,-1}, { 0,2 } }, // I
 };
-
-void Nueva_Pieza(Pieza& P) {
+//pieza
+void Nueva_Pieza(Pieza& P) {// se genera una nueva pieza y un nuevo color, utilizando un numero al azar
   P.orig.x = 12;
   P.orig.y = 2;
-  P.color = 1 + rand() % 6;
+  P.color = 1 + rand() % 6;//colores al azar desde el 1 al 5, el 0 es el negro
   // Pieza al azar
   int r = rand() % 7;
   for (int i = 0; i < 3; i++) {
      P.perif[i] = perifs[r][i];
   }
 }
-
-bool Fila_llena_Tablero(const Tablero& T, int fila) {
+//juego
+bool Fila_llena_Tablero(const Tablero& T, int fila) {// funcion que verifica que se hizo tetris, 
    for (int i = 0; i < COLUMNAS; i++) {
-      if (T[i][fila] == NEGRO) return false;
+      if (T[i][fila] == NEGRO) return false;//si alguna casilla de la fila es negro, no hay tetris
    }
    return true;
 }
-
+//tablero, se encarga de bajar todo el tablero una posicion despues de verificar si se hizo tetris
 void tetris(Tablero& T, int fila) {
    // Copiar de abajo a arriba
    for (int j = fila; j > 0; j--) {
@@ -143,7 +148,8 @@ void tetris(Tablero& T, int fila) {
       T[i][0] = NEGRO;
    }
 }
-
+//tablero/juego, verifica si se llego al tope del tablero y ademas se encarga de actualizar el tablero en cada iteracion
+/*ademas retorna un contador que se utilizara para el puntaje*/
 int Cuenta_Lineas_Tablero(Tablero& T) {
    int fila = FILAS - 1, cont = 0;
    while (fila >= 0) {
@@ -157,12 +163,8 @@ int Cuenta_Lineas_Tablero(Tablero& T) {
    return cont;
 }
 
-string a_string(int puntos) {
-   stringstream sout;
-   sout << puntos;
-   return sout.str();
-}
 
+//funcion que actualiza la interfaz
 void Re_Pintar(const Tablero& T, const Pieza& p, const Pieza& sig,
              int puntos, int nivel)
 {
@@ -192,8 +194,8 @@ void Re_Pintar(const Tablero& T, const Pieza& p, const Pieza& sig,
    char puntos_aux[5];
    char niveles[5];
    itoa(nivel+1,niveles,10);
-      itoa(puntos,puntos_aux,10);
-       texto(20+ancho+45, 555, "Nivel:");
+   itoa(puntos,puntos_aux,10);
+   texto(20+ancho+45, 555, "Nivel:");
    texto(20+ancho+45, 590, "Puntos");
    texto(20+ancho+100, 555, niveles);
    texto(20+ancho+100, 590, puntos_aux);
@@ -201,15 +203,15 @@ void Re_Pintar(const Tablero& T, const Pieza& p, const Pieza& sig,
    Pintar_Pieza(sig);
    refresca();
 }
-
+//juego
 const int puntos_limite[10] = {
    10, 20, 30, 40, 50, 70, 80, 90, 100, 110
 };
-
+//juego
 const int tics_nivel[10] = {
    33, 25, 20, 18, 16, 14, 12, 10, 8, 2
 };
-
+//pantalla de fin del juego
 void game_over() {
    color(BLANCO);
    texto(140, 240, "GAME OVER!");
@@ -224,7 +226,7 @@ int main() {
    srand(time(0)); // Inicializar los números al azar (poner la semilla)
 
    int tic = 0, puntos = 0, nivel = 0;
-
+// se crea todo lo necesario para la ,ejecucion del juego
    Tablero T;
    Vacia_tablero(T);
    Pieza c, sig;
@@ -237,12 +239,13 @@ int main() {
    Re_Pintar(T, c, sig, puntos, nivel);
 
    int t = tecla();
+   //pantalla de inicio del juego
    while(t==NINGUNA){
       texto(65, 240, "presione cualquier tecla ");
       t=tecla();
    }
 
-
+//ejecucion del juego
    while (t != ESCAPE) {
       // 0. Copiar la pieza actual
       Pieza copia = c;
@@ -257,22 +260,23 @@ int main() {
          nivel++;
       }
 
-      // 1. Prueba el movimiento
-      if (t == ABAJO) {
+      
+      if (t == ABAJO) {//baja la pieza una fila
          c.orig.y++;
-      } else if (t == ARRIBA) {
+      } else if (t == ARRIBA) {//se rota la pieza 
          RotarA_Derecha(c);
+      //dependiendo la flecha se mueve el origen hacia ese lado(izquierda o derecha)
       } else if (t == DERECHA) {
          c.orig.x++;
       } else if (t == IZQUIERDA) {
          c.orig.x--;
       }
-      // 2. Mirar si hay colisión
+      // 2. verifica si hay colisiones en cada ciclo
       if (tablero_colicion(T, c)) {
-         c = copia;
+         c = copia;//en caso de haber colision se inserta la pieza en el tablero y se genera una nueva y la siguiente
          if (t == ABAJO) {
             Tablero_Agrega_Pieza(T, c);
-            int cont = Cuenta_Lineas_Tablero(T);
+            int cont = Cuenta_Lineas_Tablero(T);//dependiendo el nivel hay una nueva velocidad de bajada de la pieza
             puntos += cont * cont;
             if (puntos > puntos_limite[nivel]) {
                nivel++;
@@ -281,7 +285,7 @@ int main() {
             Nueva_Pieza(sig);
             c.orig.x = 5;
             
-            if (tablero_colicion(T, c)) {
+            if (tablero_colicion(T, c)) {//si la pieza queda fuera de el tablero se termina el juego
                game_over();
             }
          }
@@ -289,18 +293,18 @@ int main() {
 
       // Re_Pintarr
       if (t != NINGUNA) {
-            sig.orig.x=13;
+            sig.orig.x=13;//genera la pieza siguiente en cierta coordenada para poder mostrarla 
          sig.orig.y=10;
          Re_Pintar(T, c, sig, puntos, nivel);
-         sig.orig.x=0;
+         sig.orig.x=0;//luego de insertar la pieza actual, la pieza siguiente pasa a ser la que esta en juego
          sig.orig.y=1;
       }
 
       espera(30);
-      tic++;
-      t = tecla();
+      tic++;//velocidad a la que se ejecuta el juego
+      t = tecla();//variable que detecta la tecla
       
    }
-   vcierra();
+   vcierra();//cerrar ventana
    return 0;
 }
